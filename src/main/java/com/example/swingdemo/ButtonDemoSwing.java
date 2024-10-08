@@ -134,14 +134,22 @@ public class ButtonDemoSwing extends JPanel {
 //                    + ", classLoader2 parent: " + classLoader2.getParent().getName()
 //                    + ", classLoader2 hashCode: " + classLoader2.hashCode());
 
+            /*
+            * Lot of debug stuff her.
+            * The lines 1 - 3 uses intern a full qualified path, that's a problem
+            * Line 4 works, but is not thread safe
+            * In a real application use line 5 "Thread.currentThread()..."
+            */
             URL imgURL = null;
-//            imgURL = ButtonDemoSwingPanel.class.getResource(path); // Doesn't work
-            Class<ButtonDemoSwingPanel> buttonDemoSwingPanelClass = ButtonDemoSwingPanel.class;// Doesn't work
-            imgURL = buttonDemoSwingPanelClass.getResource(path); // Step Into doesn't work her!?
+//            imgURL = ButtonDemoSwingPanel.class.getResource(path); // Doesn't work 1
 
-//            imgURL = this.getClass().getResource(path); // Doesn't work
-//            imgURL= ClassLoader.getSystemClassLoader().getResource(path);
-            imgURL = Thread.currentThread().getContextClassLoader().getResource(path);
+            Class<ButtonDemoSwingPanel> buttonDemoSwingPanelClass = ButtonDemoSwingPanel.class;// Doesn't work
+            imgURL = buttonDemoSwingPanelClass.getResource(path); // Step Into doesn't work her!? 2
+
+            imgURL = this.getClass().getResource(path); // Doesn't work 3
+//            imgURL= ClassLoader.getSystemClassLoader().getResource(path); 4
+
+            imgURL = Thread.currentThread().getContextClassLoader().getResource(path); // 5
             if (imgURL != null) {
                 return new ImageIcon(imgURL);
             } else {
