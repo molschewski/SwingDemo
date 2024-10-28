@@ -1,5 +1,3 @@
-import org.springframework.boot.gradle.tasks.run.BootRun
-
 plugins {
 	java
 	id("org.springframework.boot") version "3.3.4"
@@ -29,10 +27,14 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+//tasks.withType<JavaCompile> {
+//	options.compilerArgs.add("-Xlint:unchecked")
+//}
+
 // debug
-tasks.withType<BootRun> {
-	jvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-}
+//tasks.withType<BootRun> {
+//	jvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
+//}
 
 
 //tasks.jar {
