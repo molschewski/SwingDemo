@@ -1,8 +1,8 @@
 package com.example.swingdemo;
 
 import java.awt.*;
-        import java.awt.event.*;
-        import javax.swing.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 public class ScrollablePicture extends JLabel implements Scrollable, MouseMotionListener {
 

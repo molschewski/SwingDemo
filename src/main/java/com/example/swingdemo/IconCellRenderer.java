@@ -27,21 +27,20 @@ public class IconCellRenderer extends DefaultListCellRenderer {
             int index,
             boolean isSelected,
             boolean cellHasFocus) {
-        java.awt.Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        if (c instanceof JLabel && value instanceof BufferedImage) {
-            JLabel l = (JLabel)c;
-            l.setText("");
-            BufferedImage i = (BufferedImage)value;
-            l.setIcon(new ImageIcon(icon));
+        java.awt.Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        if (component instanceof JLabel && value instanceof BufferedImage) {
+            JLabel label = (JLabel)component;
+            label.setText("");
+            BufferedImage image = (BufferedImage)value;
+            label.setIcon(new ImageIcon(icon));
 
-            Graphics2D g = icon.createGraphics();
-            g.setColor(new Color(0,0,0,0));
-            g.clearRect(0, 0, size, size);
-            g.drawImage(i,0,0,size,size,this);
-
-            g.dispose();
+            Graphics2D graphics = icon.createGraphics();
+            graphics.setColor(new Color(0,0,0,0));
+            graphics.clearRect(0, 0, size, size);
+            graphics.drawImage(image,0,0,size,size,this);
+            graphics.dispose();
         }
-        return c;
+        return component;
     }
 
     @Override
