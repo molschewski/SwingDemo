@@ -37,6 +37,6 @@ tasks.withType<Test> {
 //}
 
 
-//tasks.jar {
-//	manifest.attributes["Main-Class"] = "com.example.swingdemo.SwingdemoApplication"
-//}
+tasks.jar {
+	manifest.attributes["Main-Class"] = "com.example.swingdemo.SwingdemoApplication"
+}

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /* Utils.java is used by FileChooserDemo2.java. */
@@ -62,6 +62,15 @@ public class Utils {
                     .filter(file -> fnf.accept(file.toFile()))
                     .map(Path::toFile)
                     .collect(Collectors.toList());
+        }
+    }
+
+    static public void setIconsForModel(DefaultListModel<IconPreview> model, File dir) throws IOException {
+        List<File> files = readImageFiles(dir);
+        model.removeAllElements();
+        for (int i = 0; i < files.size(); i++) {
+            File file = files.get(i);
+            model.addElement(new IconPreview(file.toPath()));
         }
     }
 
