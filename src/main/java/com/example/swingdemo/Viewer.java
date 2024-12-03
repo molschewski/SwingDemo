@@ -2,6 +2,7 @@ package com.example.swingdemo;
 
 import com.example.swingdemo.util.FileOpenAction;
 import com.example.swingdemo.util.IconPreview;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -18,8 +19,6 @@ public class Viewer {
 
     public static int iconSize = 128;
 
-    protected JFrame frame;
-
     private JPanel viewerGUI;
     private ScrollablePicture picture;
     private JScrollPane pictureScrollPane;
@@ -32,12 +31,11 @@ public class Viewer {
     JMenu menu;
     JMenuItem menuItem;
 
-    Action testAction;
-
     public Viewer() {
 
     }
 
+    @Bean
     public static void createViewer() {
         JFrame frame = new JFrame("Viewer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

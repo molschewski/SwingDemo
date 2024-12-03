@@ -18,12 +18,16 @@ public class SwingdemoApplication extends JFrame {
 //			var ex = ctx.getBean(Viewer.class);
 //		});
 
+		EventQueue.invokeLater(() -> {
+			var ex = ctx.getBean("createViewer");
+		});
+
 		// Disable the Spring way for learning purposes. I will start the viewer
 		// with a fabric pattern, and I have still to learn, how to implement that
 		// in spring
-		EventQueue.invokeLater(() -> {
-			Viewer.createViewer();
-		});
+//		EventQueue.invokeLater(() -> {
+//			Viewer.createViewer();
+//		});
 	}
 
 }
