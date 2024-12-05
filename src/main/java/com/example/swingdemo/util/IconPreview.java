@@ -38,6 +38,12 @@ public class IconPreview {
                 log.log(Level.ALL, "Could not read " + imagePath.toString());
                 throw new RuntimeException(e);
             }
+
+            if (tmpIcon.getImage() == null) {
+                tmpIcon = createImageIcon("images/Open16.gif");
+                log.log(Level.WARNING, "The file " + imagePath.toString() + " is not an image.");
+            }
+
             int tmpWidth = tmpIcon.getIconWidth();
             int tmpHeight = tmpIcon.getIconHeight();
 
@@ -58,8 +64,8 @@ public class IconPreview {
                     .getScaledInstance(width, height, Image.SCALE_DEFAULT));
         }
 
-        // debug
-        System.err.println("icon height: " + icon.getIconHeight() + ", icon width: " + icon.getIconWidth());
+//        System.err.println("icon height: " + icon.getIconHeight() + ", icon width: " + icon.getIconWidth());
+
         return icon;
     }
 

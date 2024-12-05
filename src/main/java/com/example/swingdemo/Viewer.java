@@ -9,6 +9,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -21,15 +23,10 @@ public class Viewer {
 
     private JPanel viewerGUI;
     private ScrollablePicture picture;
-    private JScrollPane pictureScrollPane;
-    private JButton openButton;
     private DefaultListModel<IconPreview> model;
     private JList<IconPreview> imageList;
     private Action fileOpenAction;
-
-    JMenuBar menuBar;
-    JMenu menu;
-    JMenuItem menuItem;
+    private JMenuBar menuBar;
 
     public Viewer() {
 
@@ -58,17 +55,16 @@ public class Viewer {
         //Display the window.
         frame.pack();
         frame.setVisible(true);
-
     }
 
     private JMenuBar createMenuBar() {
 
-        menuBar = new JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
 
-        menu = new JMenu("Images");
+        JMenu menu = new JMenu("Images");
         menuBar.add(menu);
 
-        menuItem = new JMenuItem(fileOpenAction);
+        JMenuItem menuItem = new JMenuItem(fileOpenAction);
         menu.add(menuItem);
 
         return menuBar;
@@ -81,17 +77,34 @@ public class Viewer {
         //////////
         // buttons
         GridBagConstraints gbcOpenButton = new GridBagConstraints();
-        openButton = new JButton(fileOpenAction);
-//        openButton.setText("Open an image");
+        JButton openButton = new JButton(fileOpenAction);
         openButton.setIcon(createImageIcon("images/Open16.gif"));
-//        openButton.setAction(fileOpenAction);
+
+//        PropertyChangeListener[] propertyChangeListeners = openButton.getPropertyChangeListeners();
+//        for (PropertyChangeListener pcl : propertyChangeListeners) {
+//            System.err.println("PropertyChangeListener: " + pcl.toString());
+//        }
+//        Arrays.stream(openButton.getChangeListeners()).toList();
+
+        // debug
+        openButton.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("enabled")) {
+                    System.err.println("openButton Event: " + evt.toString());
+                }
+//                    boolean isEnabled = (Boolean)evt.getNewValue();
+//                    for (AbstractButton button : buttons) {
+//                        button.setEnabled(isEnabled);
+//                    }
+//                }
+            }
+        });
 
         ////////
         // image
         GridBagConstraints gbcPictureScrollPane = new GridBagConstraints();
         picture = new ScrollablePicture(1);
-        pictureScrollPane = new JScrollPane(picture);
-//        picture.setPreferredSize(new Dimension(600, 600));
+        JScrollPane pictureScrollPane = new JScrollPane(picture);
         pictureScrollPane.setPreferredSize(new Dimension(600, 600));
         pictureScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pictureScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -108,7 +121,14 @@ public class Viewer {
             public void valueChanged(ListSelectionEvent lse) {
                 IconPreview selectedValue = imageList.getSelectedValue();
                 try {
+                    if (selectedValue == null) {
+                        return;
+                    }
                     Path path = selectedValue.getPath();
+                    if (path == null) {
+                        // do nothing till I have a nice placeholder
+                        return;
+                    }
                     byte[] imgBytes = Files.readAllBytes(path);
                     picture.setIcon(new ImageIcon(imgBytes));
                 } catch (Exception e) {
@@ -121,12 +141,6 @@ public class Viewer {
         imageList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         imageList.setVisibleRowCount(1);
 
-        ListCellRenderer<? super IconPreview> cellRenderer = imageList.getCellRenderer();
-//        if (cellRenderer instanceof IconCellRenderer) {
-//            System.err.println("IconCellRenderer PreferredSize: "
-//                    + ((IconCellRenderer) cellRenderer).getPreferredSize().toString());
-//        }
-
         JScrollPane imageScroll = new JScrollPane(
                 imageList,
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER,
@@ -135,23 +149,17 @@ public class Viewer {
 
         imageScroll.setPreferredSize(new Dimension(600, 100));
 
-//        // debug
-//        int size = imageList.getModel().getSize();
-//        System.err.println("list.size: " + size);
-//        System.err.println("model.size: " + model.getSize());
-//        imageList.setSelectedIndex(1);
-
         gbcOpenButton.gridx = 0;
         gbcOpenButton.gridy = 0;
         gbcOpenButton.anchor = GridBagConstraints.LINE_START;
         panel.add(openButton, gbcOpenButton);
-//            gbcPicture.fill = GridBagConstraints.BOTH;
+
         gbcPictureScrollPane.weightx = 0.5;
         gbcPictureScrollPane.weighty = 0.5;
         gbcPictureScrollPane.gridx = 0;
         gbcPictureScrollPane.gridy = 1;
         panel.add(pictureScrollPane, gbcPictureScrollPane);
-//            gbcImageScroll.fill = GridBagConstraints.VERTICAL;
+
         gbcImageScroll.weightx = 1.0;
         gbcImageScroll.weighty = 1.0;
         gbcImageScroll.gridx = 0;
