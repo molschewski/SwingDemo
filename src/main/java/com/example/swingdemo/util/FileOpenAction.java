@@ -34,7 +34,7 @@ public class FileOpenAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-//        System.err.println("ActionEvent e source: " + e.getSource().toString());
+        System.err.println("ActionEvent e source: " + e.getSource().toString());
 
         if (viewer == null) {
             System.err.println("No viewer found, giving up!");
@@ -68,7 +68,7 @@ public class FileOpenAction extends AbstractAction {
 
             @Override
             protected void done() {
-                DefaultListModel<IconPreview> model = viewer.getModel();
+                DefaultListModel<IconPreview> model = viewer.getImageListModel();
                 model.removeAllElements();
                 for (IconPreview icon : icons) {
                     model.addElement(icon);

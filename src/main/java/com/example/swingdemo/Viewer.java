@@ -9,10 +9,12 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Vector;
 
 import static com.example.swingdemo.util.Utils.*;
 
@@ -23,10 +25,13 @@ public class Viewer {
 
     private JPanel viewerGUI;
     private ScrollablePicture picture;
-    private DefaultListModel<IconPreview> model;
+    private DefaultListModel<IconPreview> imageListModel;
     private JList<IconPreview> imageList;
+    private JList tagsList;
     private Action fileOpenAction;
     private JMenuBar menuBar;
+
+    private Vector testData = new Vector<>(Arrays.asList("foo", "bar", "boo"));
 
     public Viewer() {
 
@@ -58,12 +63,10 @@ public class Viewer {
     }
 
     private JMenuBar createMenuBar() {
-
         JMenuBar menuBar = new JMenuBar();
-
+        
         JMenu menu = new JMenu("Images");
         menuBar.add(menu);
-
         JMenuItem menuItem = new JMenuItem(fileOpenAction);
         menu.add(menuItem);
 
@@ -72,13 +75,24 @@ public class Viewer {
 
     public JPanel createViewerGUI() throws Exception {
 
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel outerPanel = new JPanel(new BorderLayout());
+        JPanel lineEndPanel = new JPanel();
+        lineEndPanel.setLayout(new BoxLayout(lineEndPanel, BoxLayout.PAGE_AXIS));
+        JPanel imagePanel = new JPanel(new GridBagLayout());
+        JScrollPane tagsListScrollPane = new JScrollPane();
+        JScrollPane pictureScrollPane = new JScrollPane();
+        JSplitPane splitPane = new JSplitPane();
 
         //////////
         // buttons
         GridBagConstraints gbcOpenButton = new GridBagConstraints();
         JButton openButton = new JButton(fileOpenAction);
         openButton.setIcon(createImageIcon("images/Open16.gif"));
+
+//        GridBagConstraints gbcShowTagsButton = new GridBagConstraints();
+        JToggleButton showTagsButton = new JToggleButton();
+        showTagsButton.setName("show tags");
+//        showTagsButton.setIcon(createImageIcon("images/Open16.gif"));
 
 //        PropertyChangeListener[] propertyChangeListeners = openButton.getPropertyChangeListeners();
 //        for (PropertyChangeListener pcl : propertyChangeListeners) {
@@ -87,24 +101,43 @@ public class Viewer {
 //        Arrays.stream(openButton.getChangeListeners()).toList();
 
         // debug
-        openButton.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals("enabled")) {
-                    System.err.println("openButton Event: " + evt.toString());
-                }
-//                    boolean isEnabled = (Boolean)evt.getNewValue();
-//                    for (AbstractButton button : buttons) {
-//                        button.setEnabled(isEnabled);
-//                    }
+//        openButton.addPropertyChangeListener(new PropertyChangeListener() {
+//            public void propertyChange(PropertyChangeEvent evt) {
+//                if (evt.getPropertyName().equals("enabled")) {
+//                    System.err.println("openButton Event: " + evt.toString());
 //                }
-            }
-        });
+////                    boolean isEnabled = (Boolean)evt.getNewValue();
+////                    for (AbstractButton button : buttons) {
+////                        button.setEnabled(isEnabled);
+////                    }
+////                }
+//            }
+//        });
+
+        ////////////
+        // tagsPanel
+        tagsList = new JList();
+        tagsList.setListData(testData);
+        tagsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tagsList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+
+        tagsList.setVisibleRowCount(-1);
+//        tagsList.addMouseListener(new MouseAdapter() {
+//            public void mouseClicked(MouseEvent e) {
+//                if (e.getClickCount() == 2) {
+//                    buttonName.doClick(); //emulate button click
+//                }
+//            }
+//        });
+        tagsListScrollPane.add(tagsList);
+        tagsListScrollPane.setPreferredSize(new Dimension(600, 80));
 
         ////////
         // image
         GridBagConstraints gbcPictureScrollPane = new GridBagConstraints();
         picture = new ScrollablePicture(1);
-        JScrollPane pictureScrollPane = new JScrollPane(picture);
+//        JScrollPane pictureScrollPane = new JScrollPane(picture);
+        pictureScrollPane.setViewportView(picture);
         pictureScrollPane.setPreferredSize(new Dimension(600, 600));
         pictureScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pictureScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -113,22 +146,28 @@ public class Viewer {
         ///////////////////////
         // image scroll preview
         GridBagConstraints gbcImageScroll = new GridBagConstraints();
-        model = new DefaultListModel<>();
-        imageList = new JList<>(model);
+        imageListModel = new DefaultListModel<>();
+        imageList = new JList<>(imageListModel);
         imageList.setCellRenderer(new IconCellRenderer2());
         ListSelectionListener listener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent lse) {
+
+                System.err.println("ListSelectionEvent: " + lse);
+
                 IconPreview selectedValue = imageList.getSelectedValue();
                 try {
                     if (selectedValue == null) {
+                        System.err.println("ListSelectionEvent: selectedValue is null");
                         return;
                     }
                     Path path = selectedValue.getPath();
                     if (path == null) {
+                        System.err.println("ListSelectionEvent: path is null");
                         // do nothing till I have a nice placeholder
                         return;
                     }
+                    System.err.println("ListSelectionEvent: set image");
                     byte[] imgBytes = Files.readAllBytes(path);
                     picture.setIcon(new ImageIcon(imgBytes));
                 } catch (Exception e) {
@@ -149,24 +188,32 @@ public class Viewer {
 
         imageScroll.setPreferredSize(new Dimension(600, 100));
 
-        gbcOpenButton.gridx = 0;
-        gbcOpenButton.gridy = 0;
-        gbcOpenButton.anchor = GridBagConstraints.LINE_START;
-        panel.add(openButton, gbcOpenButton);
+               ///////////////
+        // lineEndPanel
+        lineEndPanel.add(openButton);
 
+        /////////////
+        // imagePanel
         gbcPictureScrollPane.weightx = 0.5;
         gbcPictureScrollPane.weighty = 0.5;
         gbcPictureScrollPane.gridx = 0;
-        gbcPictureScrollPane.gridy = 1;
-        panel.add(pictureScrollPane, gbcPictureScrollPane);
+        gbcPictureScrollPane.gridy = 0;
+        imagePanel.add(pictureScrollPane, gbcPictureScrollPane);
 
         gbcImageScroll.weightx = 1.0;
         gbcImageScroll.weighty = 1.0;
         gbcImageScroll.gridx = 0;
-        gbcImageScroll.gridy = 2;
-        panel.add(imageScroll, gbcImageScroll);
+        gbcImageScroll.gridy = 1;
+        imagePanel.add(imageScroll, gbcImageScroll);
 
-        return panel;
+        splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setTopComponent(tagsListScrollPane);
+        splitPane.setBottomComponent(imagePanel);
+
+        outerPanel.add(lineEndPanel, BorderLayout.LINE_END);
+        outerPanel.add(splitPane, BorderLayout.CENTER);
+
+        return outerPanel;
     }
 
     public JPanel getViewerGUI() {
@@ -177,8 +224,8 @@ public class Viewer {
         return picture;
     }
 
-    public DefaultListModel<IconPreview> getModel() {
-        return model;
+    public DefaultListModel<IconPreview> getImageListModel() {
+        return imageListModel;
     }
 
     public void setFileOpenAction(Action action) {

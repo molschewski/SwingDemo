@@ -31,7 +31,7 @@ public class IconCellRenderer2 extends DefaultListCellRenderer {
         if (component instanceof JLabel && value instanceof ImageIcon) {
             JLabel label = (JLabel)component;
             label.setText("");
-            label.setIcon((Icon) value);
+            label.setIcon((Icon)value);
         } else if (component instanceof JLabel && value instanceof IconPreview) {
             System.err.println("IconCellRenderer found instance of IconPreview");
 
