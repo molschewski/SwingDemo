@@ -2,6 +2,7 @@ package com.example.swingdemo;
 
 import com.example.swingdemo.util.FileOpenAction;
 import com.example.swingdemo.util.IconPreview;
+import com.example.swingdemo.util.ShowTagsAction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -9,26 +10,30 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Vector;
-
-import static com.example.swingdemo.util.Utils.*;
 
 @Component
 public class Viewer {
 
     public static int iconSize = 128;
 
-    private JPanel viewerGUI;
+    private JPanel viewerPanel;
+    private JSplitPane splitPane;
+    private JScrollPane tagsListScrollPane;
+    private JPanel imagePanel;
     private ScrollablePicture picture;
     private DefaultListModel<IconPreview> imageListModel;
     private JList<IconPreview> imageList;
     private JList tagsList;
     private Action fileOpenAction;
+
+
+    private Action showTagsAction;
     private JMenuBar menuBar;
 
     private Vector testData = new Vector<>(Arrays.asList("foo", "bar", "boo"));
@@ -43,15 +48,15 @@ public class Viewer {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Viewer viewer = new Viewer();
-        Action fileOpAction = new FileOpenAction(viewer);
-        viewer.setFileOpenAction(fileOpAction);
+        viewer.setFileOpenAction(new FileOpenAction(viewer));
+        viewer.setShowTagsAction(new ShowTagsAction(viewer));
 
         //Add content to the window
         try {
             viewer.menuBar = viewer.createMenuBar();
             frame.setJMenuBar(viewer.menuBar);
-            viewer.viewerGUI = viewer.createViewerGUI();
-            frame.add(viewer.viewerGUI);
+            viewer.viewerPanel = viewer.createViewerGUI();
+            frame.add(viewer.viewerPanel);
         } catch (Exception e) {
             System.err.println(e);
             throw new RuntimeException(e);
@@ -75,24 +80,23 @@ public class Viewer {
 
     public JPanel createViewerGUI() throws Exception {
 
-        JPanel outerPanel = new JPanel(new BorderLayout());
+        viewerPanel = new JPanel(new BorderLayout());
         JPanel lineEndPanel = new JPanel();
         lineEndPanel.setLayout(new BoxLayout(lineEndPanel, BoxLayout.PAGE_AXIS));
-        JPanel imagePanel = new JPanel(new GridBagLayout());
-        JScrollPane tagsListScrollPane = new JScrollPane();
+        imagePanel = new JPanel(new GridBagLayout());
+        tagsListScrollPane = new JScrollPane();
         JScrollPane pictureScrollPane = new JScrollPane();
-        JSplitPane splitPane = new JSplitPane();
+        splitPane = new JSplitPane();
+
+        //debug
+//        centerPanel.addComponentListener(new ResizeListener("centerPanel"));
+        imagePanel.addComponentListener(new ResizeListener("imagePanel"));
 
         //////////
         // buttons
-        GridBagConstraints gbcOpenButton = new GridBagConstraints();
         JButton openButton = new JButton(fileOpenAction);
-        openButton.setIcon(createImageIcon("images/Open16.gif"));
 
-//        GridBagConstraints gbcShowTagsButton = new GridBagConstraints();
-        JToggleButton showTagsButton = new JToggleButton();
-        showTagsButton.setName("show tags");
-//        showTagsButton.setIcon(createImageIcon("images/Open16.gif"));
+        JToggleButton showTagsButton = new JToggleButton(showTagsAction);
 
 //        PropertyChangeListener[] propertyChangeListeners = openButton.getPropertyChangeListeners();
 //        for (PropertyChangeListener pcl : propertyChangeListeners) {
@@ -134,9 +138,7 @@ public class Viewer {
 
         ////////
         // image
-        GridBagConstraints gbcPictureScrollPane = new GridBagConstraints();
         picture = new ScrollablePicture(1);
-//        JScrollPane pictureScrollPane = new JScrollPane(picture);
         pictureScrollPane.setViewportView(picture);
         pictureScrollPane.setPreferredSize(new Dimension(600, 600));
         pictureScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -145,7 +147,6 @@ public class Viewer {
 
         ///////////////////////
         // image scroll preview
-        GridBagConstraints gbcImageScroll = new GridBagConstraints();
         imageListModel = new DefaultListModel<>();
         imageList = new JList<>(imageListModel);
         imageList.setCellRenderer(new IconCellRenderer2());
@@ -187,37 +188,71 @@ public class Viewer {
         );
 
         imageScroll.setPreferredSize(new Dimension(600, 100));
+        imageScroll.setMinimumSize(new Dimension(100, 100));
 
                ///////////////
         // lineEndPanel
         lineEndPanel.add(openButton);
+        lineEndPanel.add(showTagsButton);
 
         /////////////
         // imagePanel
+        GridBagConstraints gbcPictureScrollPane = new GridBagConstraints();
         gbcPictureScrollPane.weightx = 0.5;
         gbcPictureScrollPane.weighty = 0.5;
         gbcPictureScrollPane.gridx = 0;
         gbcPictureScrollPane.gridy = 0;
+        gbcPictureScrollPane.fill = GridBagConstraints.BOTH;
         imagePanel.add(pictureScrollPane, gbcPictureScrollPane);
 
-        gbcImageScroll.weightx = 1.0;
-        gbcImageScroll.weighty = 1.0;
+        GridBagConstraints gbcImageScroll = new GridBagConstraints();
+        gbcImageScroll.weightx = 0.0;
+        gbcImageScroll.weighty = 0.0;
         gbcImageScroll.gridx = 0;
         gbcImageScroll.gridy = 1;
+        gbcImageScroll.fill = GridBagConstraints.HORIZONTAL;
         imagePanel.add(imageScroll, gbcImageScroll);
 
-        splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(tagsListScrollPane);
-        splitPane.setBottomComponent(imagePanel);
+        viewerPanel.add(lineEndPanel, BorderLayout.LINE_END);
+        viewerPanel.add(imagePanel, BorderLayout.CENTER);
 
-        outerPanel.add(lineEndPanel, BorderLayout.LINE_END);
-        outerPanel.add(splitPane, BorderLayout.CENTER);
-
-        return outerPanel;
+        return viewerPanel;
     }
 
-    public JPanel getViewerGUI() {
-        return viewerGUI;
+    class ResizeListener extends ComponentAdapter {
+
+        String name;
+
+        public ResizeListener(String name) {
+            super();
+            this.name = name;
+        }
+
+        public void componentResized(ComponentEvent e) {
+            System.err.println(
+                    name + ".height: " + e.getComponent().getHeight()
+                    + ", " + name + ".width: " + e.getComponent().getWidth());
+        }
+    }
+
+    public JPanel getViewerPanel() {
+        return viewerPanel;
+    }
+
+    public JPanel getImagePanel() {
+        return imagePanel;
+    }
+
+    public JScrollPane getTagsListScrollPane() {
+        return tagsListScrollPane;
+    }
+
+    public JSplitPane getSplitPane() {
+        return splitPane;
+    }
+
+    public void setSplitPane(JSplitPane splitPane) {
+        this.splitPane = splitPane;
     }
 
     public ScrollablePicture getPicture() {
@@ -230,6 +265,10 @@ public class Viewer {
 
     public void setFileOpenAction(Action action) {
         this.fileOpenAction = action;
+    }
+
+    public void setShowTagsAction(Action showTagsAction) {
+        this.showTagsAction = showTagsAction;
     }
 
 }

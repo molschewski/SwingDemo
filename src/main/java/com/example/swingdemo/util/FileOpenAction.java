@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.example.swingdemo.util.Utils.createImageIcon;
 import static com.example.swingdemo.util.Utils.readImageFiles;
 
 public class FileOpenAction extends AbstractAction {
@@ -29,12 +30,13 @@ public class FileOpenAction extends AbstractAction {
         this.viewer = viewer;
         createFileChooser();
         putValue(SHORT_DESCRIPTION, "Open files");
+        putValue(SMALL_ICON, createImageIcon("images/Open16.gif"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        System.err.println("ActionEvent e source: " + e.getSource().toString());
+//        System.err.println("ActionEvent e source: " + e.getSource().toString());
 
         if (viewer == null) {
             System.err.println("No viewer found, giving up!");
@@ -50,7 +52,7 @@ public class FileOpenAction extends AbstractAction {
 
             @Override
             protected List<IconPreview> doInBackground() {
-                int returnVal = fileChooser.showOpenDialog(viewer.getViewerGUI());
+                int returnVal = fileChooser.showOpenDialog(viewer.getViewerPanel());
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     icons.clear();
                     File dir = fileChooser.getSelectedFile();
