@@ -1,8 +1,6 @@
 package com.example.swingdemo;
 
-import com.example.swingdemo.util.FileOpenAction;
-import com.example.swingdemo.util.IconPreview;
-import com.example.swingdemo.util.ShowTagsAction;
+import com.example.swingdemo.util.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +15,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Vector;
 
+import static java.awt.Component.LEFT_ALIGNMENT;
+
 @Component
 public class Viewer {
 
@@ -26,17 +26,18 @@ public class Viewer {
     private JSplitPane splitPane;
     private JScrollPane tagsListScrollPane;
     private JPanel imagePanel;
+    private JTextPane imageInfoPane;
     private ScrollablePicture picture;
     private DefaultListModel<IconPreview> imageListModel;
     private JList<IconPreview> imageList;
     private JList tagsList;
     private Action fileOpenAction;
-
-
     private Action showTagsAction;
+    private Action showGenParameterAction;
     private JMenuBar menuBar;
+    private ButtonGroup1 buttonGroup;
 
-    private Vector testData = new Vector<>(Arrays.asList("foo", "bar", "boo"));
+    private Vector testData = new Vector<>(Arrays.asList("foo", "bar", "boo", "goo", "hui"));
 
     public Viewer() {
 
@@ -50,6 +51,7 @@ public class Viewer {
         Viewer viewer = new Viewer();
         viewer.setFileOpenAction(new FileOpenAction(viewer));
         viewer.setShowTagsAction(new ShowTagsAction(viewer));
+        viewer.setShowGenParameterAction(new ShowGenParameterAction(viewer));
 
         //Add content to the window
         try {
@@ -58,7 +60,6 @@ public class Viewer {
             viewer.viewerPanel = viewer.createViewerGUI();
             frame.add(viewer.viewerPanel);
         } catch (Exception e) {
-            System.err.println(e);
             throw new RuntimeException(e);
         }
 
@@ -85,6 +86,8 @@ public class Viewer {
         lineEndPanel.setLayout(new BoxLayout(lineEndPanel, BoxLayout.PAGE_AXIS));
         imagePanel = new JPanel(new GridBagLayout());
         tagsListScrollPane = new JScrollPane();
+        imageInfoPane = new JTextPane();
+        imageInfoPane.setEditable(false);
         JScrollPane pictureScrollPane = new JScrollPane();
         splitPane = new JSplitPane();
 
@@ -96,7 +99,13 @@ public class Viewer {
         // buttons
         JButton openButton = new JButton(fileOpenAction);
 
+
+        buttonGroup = new ButtonGroup1();
+
         JToggleButton showTagsButton = new JToggleButton(showTagsAction);
+        JToggleButton showGenParameterButton = new JToggleButton(showGenParameterAction);
+        buttonGroup.add(showTagsButton);
+        buttonGroup.add(showGenParameterButton);
 
 //        PropertyChangeListener[] propertyChangeListeners = openButton.getPropertyChangeListeners();
 //        for (PropertyChangeListener pcl : propertyChangeListeners) {
@@ -122,9 +131,8 @@ public class Viewer {
         // tagsPanel
         tagsList = new JList();
         tagsList.setListData(testData);
-        tagsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tagsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         tagsList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-
         tagsList.setVisibleRowCount(-1);
 //        tagsList.addMouseListener(new MouseAdapter() {
 //            public void mouseClicked(MouseEvent e) {
@@ -133,8 +141,11 @@ public class Viewer {
 //                }
 //            }
 //        });
-        tagsListScrollPane.add(tagsList);
-        tagsListScrollPane.setPreferredSize(new Dimension(600, 80));
+        tagsListScrollPane.setViewportView(tagsList);
+        tagsListScrollPane.setPreferredSize(new Dimension(600, 100));
+        tagsListScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        tagsListScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        tagsListScrollPane.setAlignmentX(LEFT_ALIGNMENT);
 
         ////////
         // image
@@ -154,7 +165,7 @@ public class Viewer {
             @Override
             public void valueChanged(ListSelectionEvent lse) {
 
-                System.err.println("ListSelectionEvent: " + lse);
+//                System.err.println("ListSelectionEvent: " + lse);
 
                 IconPreview selectedValue = imageList.getSelectedValue();
                 try {
@@ -168,9 +179,13 @@ public class Viewer {
                         // do nothing till I have a nice placeholder
                         return;
                     }
-                    System.err.println("ListSelectionEvent: set image");
+//                    System.err.println("ListSelectionEvent: set image");
                     byte[] imgBytes = Files.readAllBytes(path);
                     picture.setIcon(new ImageIcon(imgBytes));
+
+                    if (showGenParameterButton.equals(getButtonGroup().getSelected())) {
+                        imageInfoPane.setText(FileInfo.getFileInfo(path));
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -190,10 +205,11 @@ public class Viewer {
         imageScroll.setPreferredSize(new Dimension(600, 100));
         imageScroll.setMinimumSize(new Dimension(100, 100));
 
-               ///////////////
+        ///////////////
         // lineEndPanel
         lineEndPanel.add(openButton);
         lineEndPanel.add(showTagsButton);
+        lineEndPanel.add(showGenParameterButton);
 
         /////////////
         // imagePanel
@@ -229,9 +245,9 @@ public class Viewer {
         }
 
         public void componentResized(ComponentEvent e) {
-            System.err.println(
-                    name + ".height: " + e.getComponent().getHeight()
-                    + ", " + name + ".width: " + e.getComponent().getWidth());
+//            System.err.println(
+//                    name + ".height: " + e.getComponent().getHeight()
+//                    + ", " + name + ".width: " + e.getComponent().getWidth());
         }
     }
 
@@ -243,8 +259,20 @@ public class Viewer {
         return imagePanel;
     }
 
+    public JList<IconPreview> getImageList() {
+        return imageList;
+    }
+
     public JScrollPane getTagsListScrollPane() {
         return tagsListScrollPane;
+    }
+
+    public JTextPane getImageInfoPane() {
+        return imageInfoPane;
+    }
+
+    public ButtonGroup1 getButtonGroup() {
+        return buttonGroup;
     }
 
     public JSplitPane getSplitPane() {
@@ -269,6 +297,10 @@ public class Viewer {
 
     public void setShowTagsAction(Action showTagsAction) {
         this.showTagsAction = showTagsAction;
+    }
+
+    public void setShowGenParameterAction(Action showGenParameterAction) {
+        this.showGenParameterAction = showGenParameterAction;
     }
 
 }

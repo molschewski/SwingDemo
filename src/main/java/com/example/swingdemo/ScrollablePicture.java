@@ -12,7 +12,7 @@ public class ScrollablePicture extends JLabel implements Scrollable, MouseMotion
 
         super();
 
-        setText("No picture");
+//        setText("No picture");
         setHorizontalAlignment(CENTER);
         setOpaque(true);
         setBackground(Color.white);
@@ -39,9 +39,7 @@ public class ScrollablePicture extends JLabel implements Scrollable, MouseMotion
         return getPreferredSize();
     }
 
-    public int getScrollableUnitIncrement(Rectangle visibleRect,
-                                          int orientation,
-                                          int direction) {
+    public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
         //Get the current position.
         int currentPosition = 0;
         if (orientation == SwingConstants.HORIZONTAL) {
@@ -53,14 +51,10 @@ public class ScrollablePicture extends JLabel implements Scrollable, MouseMotion
         //Return the number of pixels between currentPosition
         //and the nearest tick mark in the indicated direction.
         if (direction < 0) {
-            int newPosition = currentPosition -
-                    (currentPosition / maxUnitIncrement)
-                            * maxUnitIncrement;
+            int newPosition = currentPosition - (currentPosition / maxUnitIncrement) * maxUnitIncrement;
             return (newPosition == 0) ? maxUnitIncrement : newPosition;
         } else {
-            return ((currentPosition / maxUnitIncrement) + 1)
-                    * maxUnitIncrement
-                    - currentPosition;
+            return ((currentPosition / maxUnitIncrement) + 1) * maxUnitIncrement - currentPosition;
         }
     }
 

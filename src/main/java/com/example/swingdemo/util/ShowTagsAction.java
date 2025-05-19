@@ -19,8 +19,9 @@ public class ShowTagsAction extends AbstractAction {
     public ShowTagsAction(Viewer viewer) {
         super();
         this.viewer = viewer;
-        putValue(NAME, "Show tags");
-        putValue(SMALL_ICON, createImageIcon("images/Open16.gif"));
+        putValue(SHORT_DESCRIPTION, "Show tags");
+        putValue(SMALL_ICON, createImageIcon("images/icon_tags.png"));
+        putValue(LONG_DESCRIPTION, "Show the tag window");
     }
 
     @Override
@@ -31,8 +32,8 @@ public class ShowTagsAction extends AbstractAction {
             return;
         }
 
-        AbstractButton abstractButton =  (AbstractButton)e.getSource();
-        boolean selected = abstractButton.getModel().isSelected();
+        JToggleButton sourceButton =  (JToggleButton) e.getSource();
+        boolean selected = sourceButton.getModel().isSelected();
 
 //        System.out.println("Action.selected: " + selected);
 
@@ -40,7 +41,25 @@ public class ShowTagsAction extends AbstractAction {
         Component layoutComponent = layout.getLayoutComponent(BorderLayout.CENTER);
         viewer.getViewerPanel().remove(layoutComponent);
 
+        // debug
+//        JScrollPane tagsListPane = viewer.getTagsListScrollPane();
+//        JViewport tagsListViewport = tagsListPane.getViewport();
+//        System.err.println(tagsListViewport.toString());
+//        for (Component component : tagsListPane.getComponents()) {
+//            if (component instanceof JList<?>) {
+//                System.err.println(component.toString());
+//                JList list = (JList) component;
+//                ListModel model = list.getModel();
+//                for (int i = 0; i < model.getSize(); ++i) {
+//                    System.err.println(model.getElementAt(i));
+//                }
+//            }
+//        }
+
         if (selected) {
+//            resetButtons(sourceButton, viewer);
+            viewer.getButtonGroup().setSelected(sourceButton);
+
             JSplitPane splitPane = new JSplitPane();
             splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
             splitPane.setTopComponent(viewer.getTagsListScrollPane());

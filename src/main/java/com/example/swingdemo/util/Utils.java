@@ -1,14 +1,20 @@
 package com.example.swingdemo.util;
 
+import com.example.swingdemo.Viewer;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,6 +94,92 @@ public class Utils {
         graphics.drawImage(srcImg, 0, 0, w, h, null);
         graphics.dispose();
         return resizedImg;
+    }
+
+    public static void resetButtons(JToggleButton sourceButton, Viewer viewer) {
+        BorderLayout borderLayout = (BorderLayout) viewer.getViewerPanel().getLayout();
+        JPanel lineEndPanel = (JPanel) borderLayout.getLayoutComponent(BorderLayout.LINE_END);
+        BoxLayout boxLayout = (BoxLayout) lineEndPanel.getLayout();
+        for (Component component : boxLayout.getTarget().getComponents()) {
+            if (component instanceof JToggleButton && component != sourceButton) {
+                JToggleButton button = (JToggleButton) component;
+                button.setSelected(false);
+            }
+        }
+    }
+
+    public static void readCivitAIInfos(Path path)  {
+
+        byte IDENTIFIER = (byte) 0xff;
+        byte[] USERCOMMENT = new byte[]{(byte) 0x92, (byte) 0x86};
+
+        try (
+            InputStream inputStream = Files.newInputStream(path);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream)) {
+
+            byte[] b = new byte[2];
+            byte[] magicNumberJpg = new byte[]{(byte)0xff, (byte)0xd8};
+
+            bufferedInputStream.mark(1024); // debug
+
+            bufferedInputStream.read(b, 0, 2);
+            System.err.println("read bytes: " + HexFormat.of().formatHex(b));
+
+            if (!Arrays.equals(magicNumberJpg, b)) {
+                System.err.println("Not a jpg");
+//                log.log(Level.INFO, "Not a jpg");
+                return;
+            }
+
+            bufferedInputStream.reset();
+            char test1 = (char) bufferedInputStream.read();
+            char test2 = (char) bufferedInputStream.read();
+            System.err.println("testchar1: " + HexFormat.of().toHexDigits(test1) + " testchar2: "
+                    + HexFormat.of().toHexDigits(test2));
+
+            int offset = 2;
+            int length = 1;
+            int index = 2;
+            byte preRead = 0;
+            byte actRead = 0;
+            byte[] bytesRead = new byte[9];
+
+            long fileSize = Files.size(path);
+            System.err.println("size (bytes): " + fileSize);
+            byte APP1 = (byte) 0xe1;
+
+
+            do {
+//                        preRead = actRead;
+                actRead = (byte) bufferedInputStream.read();
+                if (IDENTIFIER == actRead) {
+                    bufferedInputStream.mark(1024);
+                    bufferedInputStream.read(bytesRead, 0, 9);
+                    byte firstByte = bytesRead[0];
+                    if (APP1 == firstByte) {
+                        System.err.println("bytesRead first byte: " + HexFormat.of().toHexDigits(firstByte));
+                        System.err.println("bytesRead second and third byte: "
+                                + HexFormat.of().formatHex(bytesRead, 1, 3));
+
+                        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+                        buffer.put(new byte[]{(byte) 0x0e, (byte) 0x7e});
+                        buffer.rewind();
+                        int value = buffer.getShort();
+                        System.err.println("bytesRead length: " + value);
+                        System.err.println("bytesRead: ff" + HexFormat.of().formatHex(bytesRead));
+                    }
+                    bufferedInputStream.reset();
+//                            System.err.println(HexFormat.of().toHexDigits(preRead) + HexFormat.of().toHexDigits(actRead));
+                }
+            } while (++index < fileSize);
+
+//                        System.err.println("preRead: " + HexFormat.of().toHexDigits(preRead)
+//                                + " actRead: " + HexFormat.of().toHexDigits(actRead));
+//                    } while (++index < 1000);
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 }

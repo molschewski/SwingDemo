@@ -26,11 +26,13 @@ public class FileOpenAction extends AbstractAction {
     private List<IconPreview> icons = new ArrayList<>();
 
     public FileOpenAction(Viewer viewer) {
-        super("Open Directories");
+//        super("Open Directories");
+        super();
         this.viewer = viewer;
         createFileChooser();
-        putValue(SHORT_DESCRIPTION, "Open files");
-        putValue(SMALL_ICON, createImageIcon("images/Open16.gif"));
+        putValue(SHORT_DESCRIPTION, "Open directories");
+        putValue(SMALL_ICON, createImageIcon("images/icon_files.png"));
+        putValue(LONG_DESCRIPTION, "Open a file chooser to select directories");
     }
 
     @Override
@@ -93,8 +95,7 @@ public class FileOpenAction extends AbstractAction {
         // add the preview pane for the file chooser and set the selection mode
         fileChooser.setAccessory(new ImagePreview(fileChooser));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+//        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         return fileChooser;
     }

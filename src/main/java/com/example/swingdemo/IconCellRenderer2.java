@@ -33,7 +33,7 @@ public class IconCellRenderer2 extends DefaultListCellRenderer {
             label.setText("");
             label.setIcon((Icon)value);
         } else if (component instanceof JLabel && value instanceof IconPreview) {
-            System.err.println("IconCellRenderer found instance of IconPreview");
+//            System.err.println("IconCellRenderer found instance of IconPreview");
 
             IconPreview iconPreview = (IconPreview)value;
             icon = iconPreview.getIcon();

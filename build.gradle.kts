@@ -1,3 +1,5 @@
+// import org.springframework.boot.gradle.tasks.run.BootRun
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.3.4"
@@ -15,10 +17,14 @@ java {
 
 repositories {
 	mavenCentral()
+	maven {
+		url = uri("https://drewnoakes/com/maven2")
+	}
 }
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("com.drewnoakes:metadata-extractor:2.19.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
