@@ -5,13 +5,13 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.example.swingdemo.CivitaiPrompt;
 import com.example.swingdemo.Viewer;
 
 import javax.swing.*;
+import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,8 +71,9 @@ public class ShowGenParameterAction extends AbstractAction {
 //            resetButtons(sourceButton, viewer);
             viewer.getButtonGroup().setSelected(sourceButton);
 
-            JTextPane textArea = viewer.getImageInfoPane();
-            JScrollPane imageInfoScrollPane = new JScrollPane(viewer.getImageInfoPane());
+            JTextPane imageInfoPane = viewer.getImageInfoPane();
+            imageInfoPane.setContentType("text/html");
+            JScrollPane imageInfoScrollPane = new JScrollPane(imageInfoPane);
             imageInfoScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
             imageInfoScrollPane.setPreferredSize(new Dimension(150, 250));
             imageInfoScrollPane.setMinimumSize(new Dimension(10, 10));
@@ -91,22 +92,28 @@ public class ShowGenParameterAction extends AbstractAction {
                     Metadata metadata = ImageMetadataReader.readMetadata(inputStream);
                     Directory directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
                     if (directory == null) {
-                        System.err.println("No metadata found in image " + path.getFileName().toString());
+                        String mesg = "<p>No metadata found in image \""
+                                + path.getFileName().toString() + "\"</p>";
+                        imageInfoPane.setDocument(Utils.createDoc(mesg));
                         return;
                     }
 
+                    // set default message
+                    HTMLDocument response;
+                    String mesg = "<p>No user comment section found in the image \""
+                            + path.getFileName().toString() + "\"</p>";
+                    response = Utils.createDoc(mesg);
+
+                    // search for an existing user comment tag
                     for (Tag tag : directory.getTags()) {
                         if (tag.getTagType() == TAG_USER_COMMENT) {
-                            String parameter = tag.toString();
-//                            System.err.println("Parameter: " + parameter);
                             // TODO sanitize and format
-                            textArea.setText(parameter);
+                            CivitaiPrompt cps = new CivitaiPrompt();
+                            response = cps.parse(tag.toString());
+                            break;
                         }
                     }
-                } catch (FileNotFoundException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+                    imageInfoPane.setDocument(response);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }

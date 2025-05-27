@@ -4,10 +4,7 @@ import com.example.swingdemo.Viewer;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -21,6 +18,9 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 /* Utils.java is used by FileChooserDemo2.java. */
 public class Utils {
@@ -180,6 +180,27 @@ public class Utils {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    public static HTMLDocument createDoc(String input) {
+
+        String htmlHead = "<!DOCTYPE html>" +
+                "<html>" +
+                "<meta charset=\"UTF-8\">" +
+                "<head><title>Civitai prompt</title></head>" +
+                "<body>";
+
+        String htmlFoot = "</body></html>";
+
+        Reader stringReader = new StringReader(htmlHead + input + htmlFoot);
+        HTMLEditorKit htmlKit = new HTMLEditorKit();
+        HTMLDocument htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
+        try {
+            htmlKit.read(stringReader, htmlDoc, 0);
+        } catch (IOException | BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+        return htmlDoc;
     }
 
 }

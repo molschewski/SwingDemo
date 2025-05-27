@@ -183,9 +183,9 @@ public class Viewer {
                     byte[] imgBytes = Files.readAllBytes(path);
                     picture.setIcon(new ImageIcon(imgBytes));
 
-                    if (showGenParameterButton.equals(getButtonGroup().getSelected())) {
-                        imageInfoPane.setText(FileInfo.getFileInfo(path));
-                    }
+//                    if (showGenParameterButton.equals(getButtonGroup().getSelected())) {
+//                        imageInfoPane.setText(FileInfo.getFileInfo(path));
+//                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
