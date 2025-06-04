@@ -1,5 +1,8 @@
 package com.example.swingdemo;
 
+import com.example.swingdemo.actions.FileOpenAction;
+import com.example.swingdemo.actions.ShowGenParameterAction;
+import com.example.swingdemo.actions.ShowTagsAction;
 import com.example.swingdemo.util.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

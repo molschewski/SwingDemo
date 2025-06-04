@@ -1,4 +1,4 @@
-package com.example.swingdemo.util;
+package com.example.swingdemo.actions;
 
 import com.example.swingdemo.Viewer;
 

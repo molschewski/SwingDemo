@@ -1,7 +1,8 @@
-package com.example.swingdemo.util;
+package com.example.swingdemo.actions;
 
 import com.example.swingdemo.ImagePreview;
 import com.example.swingdemo.Viewer;
+import com.example.swingdemo.util.IconPreview;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

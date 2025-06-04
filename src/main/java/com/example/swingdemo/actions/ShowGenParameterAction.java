@@ -1,12 +1,14 @@
-package com.example.swingdemo.util;
+package com.example.swingdemo.actions;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.example.swingdemo.CivitaiPrompt;
+import com.example.swingdemo.CivitaiParameter;
 import com.example.swingdemo.Viewer;
+import com.example.swingdemo.util.IconPreview;
+import com.example.swingdemo.util.Utils;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLDocument;
@@ -108,7 +110,7 @@ public class ShowGenParameterAction extends AbstractAction {
                     for (Tag tag : directory.getTags()) {
                         if (tag.getTagType() == TAG_USER_COMMENT) {
                             // TODO sanitize and format
-                            CivitaiPrompt cps = new CivitaiPrompt();
+                            CivitaiParameter cps = new CivitaiParameter();
                             response = cps.parse(tag.toString());
                             break;
                         }
