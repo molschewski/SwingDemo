@@ -111,7 +111,7 @@ public class ShowGenParameterAction extends AbstractAction {
                         if (tag.getTagType() == TAG_USER_COMMENT) {
                             // TODO sanitize and format
                             CivitaiParameter cps = new CivitaiParameter();
-                            response = cps.parse(tag.toString());
+                            response = cps.parse(tag.getDescription());
                             break;
                         }
                     }

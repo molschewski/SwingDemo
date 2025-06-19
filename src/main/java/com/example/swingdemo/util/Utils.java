@@ -203,4 +203,12 @@ public class Utils {
         return htmlDoc;
     }
 
+    public static String removeQuotationMark(String input) {
+        if (input.startsWith("\"") && input.endsWith("\"") && input.length() > 1) {
+            return input.substring(1, input.length() - 1);
+        } else {
+            return input;
+        }
+    }
+
 }

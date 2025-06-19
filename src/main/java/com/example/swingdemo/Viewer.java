@@ -145,7 +145,7 @@ public class Viewer {
 //            }
 //        });
         tagsListScrollPane.setViewportView(tagsList);
-        tagsListScrollPane.setPreferredSize(new Dimension(600, 100));
+        tagsListScrollPane.setPreferredSize(new Dimension(800, 100));
         tagsListScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         tagsListScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         tagsListScrollPane.setAlignmentX(LEFT_ALIGNMENT);
@@ -154,7 +154,7 @@ public class Viewer {
         // image
         picture = new ScrollablePicture(1);
         pictureScrollPane.setViewportView(picture);
-        pictureScrollPane.setPreferredSize(new Dimension(600, 600));
+        pictureScrollPane.setPreferredSize(new Dimension(800, 600));
         pictureScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         pictureScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         pictureScrollPane.setViewportBorder(BorderFactory.createLineBorder(Color.black));
