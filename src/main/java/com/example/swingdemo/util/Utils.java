@@ -47,6 +47,11 @@ public class Utils {
         return ext;
     }
 
+    public static FileNameExtensionFilter getFileNameExtensionFilter() {
+        String[] imageTypes = ImageIO.getReaderFileSuffixes();
+        return new FileNameExtensionFilter("Images", imageTypes);
+    }
+
     // Returns an ImageIcon, or null if the path was invalid.
     public static ImageIcon createImageIcon(String path) {
 

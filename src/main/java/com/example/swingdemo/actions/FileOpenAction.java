@@ -10,13 +10,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
-import static com.example.swingdemo.util.Utils.createImageIcon;
-import static com.example.swingdemo.util.Utils.readImageFiles;
+import static com.example.swingdemo.util.Utils.*;
 
 public class FileOpenAction extends AbstractAction {
 
@@ -59,13 +61,14 @@ public class FileOpenAction extends AbstractAction {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     icons.clear();
                     File dir = fileChooser.getSelectedFile();
-                    try {
-                        List<File> files = readImageFiles(dir);
-                        for (File file : files) {
-                            icons.add(new IconPreview(file.toPath()));
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    FileNameExtensionFilter fnf = getFileNameExtensionFilter();
+                    try (Stream<Path> files = Files.list(dir.toPath())) {
+                        files
+                                .filter(path -> !Files.isDirectory(path))
+                                .filter(path -> fnf.accept(path.toFile()))
+                                .forEach(path -> icons.add(new IconPreview(path)));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
                     }
                 }
                 return icons;
