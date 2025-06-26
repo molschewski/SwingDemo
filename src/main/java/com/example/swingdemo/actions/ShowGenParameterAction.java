@@ -7,8 +7,11 @@ import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.example.swingdemo.CivitaiParameter;
 import com.example.swingdemo.Viewer;
+import com.example.swingdemo.util.ApplicationContextProvider;
 import com.example.swingdemo.util.IconPreview;
 import com.example.swingdemo.util.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLDocument;
@@ -109,8 +112,8 @@ public class ShowGenParameterAction extends AbstractAction {
                     // search for an existing user comment tag
                     for (Tag tag : directory.getTags()) {
                         if (tag.getTagType() == TAG_USER_COMMENT) {
-                            // TODO sanitize and format
-                            CivitaiParameter cps = new CivitaiParameter();
+//                            CivitaiParameter cps = new CivitaiParameter();
+                            CivitaiParameter cps = ApplicationContextProvider.getContext().getBean(CivitaiParameter.class);
                             response = cps.parse(tag.getDescription());
                             break;
                         }

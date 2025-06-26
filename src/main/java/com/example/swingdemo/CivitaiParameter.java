@@ -2,6 +2,8 @@ package com.example.swingdemo;
 
 import com.example.swingdemo.util.UnicodeDecoder;
 import com.example.swingdemo.util.Utils;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.HTMLDocument;
 import java.util.*;
@@ -13,6 +15,7 @@ import java.util.regex.Pattern;
  * produces a html-page to show all the information in
  * a structured form.
  */
+@Component
 public class CivitaiParameter {
 
     public static final String parameterStart = "\\[Exif SubIFD\\] User Comment - ";
