@@ -50,10 +50,12 @@ public class FileOpenAction extends AbstractAction {
         }
 
         // disable all controls
-        this.setEnabled(false);
+//        this.setEnabled(false);
 
         // Does the SwingWorker belongs her?
-        SwingWorker<List<IconPreview>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<IconPreview>, IconPreview> worker = new SwingWorker<>() {
+
+            DefaultListModel<IconPreview> model = viewer.getPreviewListModel();
 
             @Override
             protected List<IconPreview> doInBackground() {
@@ -66,7 +68,7 @@ public class FileOpenAction extends AbstractAction {
                         files
                                 .filter(path -> !Files.isDirectory(path))
                                 .filter(path -> fnf.accept(path.toFile()))
-                                .forEach(path -> icons.add(new IconPreview(path)));
+                                .forEach(path -> publish(new IconPreview(path)));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -75,14 +77,28 @@ public class FileOpenAction extends AbstractAction {
             }
 
             @Override
-            protected void done() {
-                DefaultListModel<IconPreview> model = viewer.getImageListModel();
-                model.removeAllElements();
-                for (IconPreview icon : icons) {
-                    model.addElement(icon);
+            protected void process(List<IconPreview> chunks) {
+                System.err.println("FileOpenAction SwingWorker.process chunk size: " + chunks.size());
+                for (int i = 0; i < chunks.size(); i++) {
+                    model.addElement(chunks.get(i).getFilledIconPreview());
+                    if (i % 10 == 0) {
+                        System.err.println("FileOpenAction SwingWorker.process revalidate");
+                        System.err.println("FileOpenAction SwingWorker.process model.size(): " + model.getSize());
+                        viewer.getPreviewScroll().revalidate();
+                    }
                 }
-                FileOpenAction.this.setEnabled(true);
+                viewer.getPreviewScroll().revalidate();
             }
+
+//            @Override
+//            protected void done() {
+//                model.removeAllElements();
+////                System.err.println("FileOpenAction icons has " + icons.size() + " entries");
+//                for (IconPreview icon : icons) {
+//                    model.addElement(icon);
+//                }
+//                FileOpenAction.this.setEnabled(true);
+//            }
         };
 
         worker.execute();

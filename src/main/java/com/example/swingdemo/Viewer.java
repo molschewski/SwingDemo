@@ -31,8 +31,9 @@ public class Viewer {
     private JPanel imagePanel;
     private JTextPane imageInfoPane;
     private ScrollablePicture picture;
-    private DefaultListModel<IconPreview> imageListModel;
-    private JList<IconPreview> imageList;
+    private DefaultListModel<IconPreview> previewListModel;
+    private JList<IconPreview> previewList;
+    private JScrollPane previewScroll;
     private JList tagsList;
     private Action fileOpenAction;
     private Action showTagsAction;
@@ -161,16 +162,16 @@ public class Viewer {
 
         ///////////////////////
         // image scroll preview
-        imageListModel = new DefaultListModel<>();
-        imageList = new JList<>(imageListModel);
-        imageList.setCellRenderer(new IconCellRenderer2());
+        previewListModel = new DefaultListModel<>();
+        previewList = new JList<>(previewListModel);
+        previewList.setCellRenderer(new IconCellRenderer2());
         ListSelectionListener listener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent lse) {
 
 //                System.err.println("ListSelectionEvent: " + lse);
 
-                IconPreview selectedValue = imageList.getSelectedValue();
+                IconPreview selectedValue = previewList.getSelectedValue();
                 try {
                     if (selectedValue == null) {
                         System.err.println("ListSelectionEvent: selectedValue is null");
@@ -194,19 +195,19 @@ public class Viewer {
                 }
             }
         };
-        imageList.addListSelectionListener(listener);
+        previewList.addListSelectionListener(listener);
 
-        imageList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-        imageList.setVisibleRowCount(1);
+        previewList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        previewList.setVisibleRowCount(1);
 
-        JScrollPane imageScroll = new JScrollPane(
-                imageList,
+        previewScroll = new JScrollPane(
+                previewList,
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
         );
 
-        imageScroll.setPreferredSize(new Dimension(600, 100));
-        imageScroll.setMinimumSize(new Dimension(100, 100));
+        previewScroll.setPreferredSize(new Dimension(600, 100));
+        previewScroll.setMinimumSize(new Dimension(100, 100));
 
         ///////////////
         // lineEndPanel
@@ -230,7 +231,7 @@ public class Viewer {
         gbcImageScroll.gridx = 0;
         gbcImageScroll.gridy = 1;
         gbcImageScroll.fill = GridBagConstraints.HORIZONTAL;
-        imagePanel.add(imageScroll, gbcImageScroll);
+        imagePanel.add(previewScroll, gbcImageScroll);
 
         viewerPanel.add(lineEndPanel, BorderLayout.LINE_END);
         viewerPanel.add(imagePanel, BorderLayout.CENTER);
@@ -262,8 +263,8 @@ public class Viewer {
         return imagePanel;
     }
 
-    public JList<IconPreview> getImageList() {
-        return imageList;
+    public JList<IconPreview> getPreviewList() {
+        return previewList;
     }
 
     public JScrollPane getTagsListScrollPane() {
@@ -290,9 +291,11 @@ public class Viewer {
         return picture;
     }
 
-    public DefaultListModel<IconPreview> getImageListModel() {
-        return imageListModel;
+    public DefaultListModel<IconPreview> getPreviewListModel() {
+        return previewListModel;
     }
+
+    public JScrollPane getPreviewScroll() {return previewScroll;}
 
     public void setFileOpenAction(Action action) {
         this.fileOpenAction = action;

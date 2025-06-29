@@ -3,7 +3,6 @@ package com.example.swingdemo;
 import com.example.swingdemo.util.UnicodeDecoder;
 import com.example.swingdemo.util.Utils;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.HTMLDocument;
 import java.util.*;

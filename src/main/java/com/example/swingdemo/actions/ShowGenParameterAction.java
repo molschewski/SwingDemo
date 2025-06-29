@@ -10,8 +10,6 @@ import com.example.swingdemo.Viewer;
 import com.example.swingdemo.util.ApplicationContextProvider;
 import com.example.swingdemo.util.IconPreview;
 import com.example.swingdemo.util.Utils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 import javax.swing.*;
 import javax.swing.text.html.HTMLDocument;
@@ -31,6 +29,7 @@ public class ShowGenParameterAction extends AbstractAction {
     Logger log = Logger.getLogger(ShowGenParameterAction.class.getName());
 
     private Viewer viewer;
+    private CivitaiParameter cps;
 
     public ShowGenParameterAction(Viewer viewer) {
         super();
@@ -90,7 +89,7 @@ public class ShowGenParameterAction extends AbstractAction {
             viewer.getViewerPanel().add(splitPane, BorderLayout.CENTER);
             viewer.setSplitPane(splitPane);
 
-            IconPreview selectedValue = viewer.getImageList().getSelectedValue();
+            IconPreview selectedValue = viewer.getPreviewList().getSelectedValue();
             if (selectedValue != null) {
                 Path path = selectedValue.getPath();
                 try (InputStream inputStream = Files.newInputStream(path)) {
@@ -113,6 +112,7 @@ public class ShowGenParameterAction extends AbstractAction {
                     for (Tag tag : directory.getTags()) {
                         if (tag.getTagType() == TAG_USER_COMMENT) {
 //                            CivitaiParameter cps = new CivitaiParameter();
+//                            CivitaiParameter cps = ApplicationContextProvider.getContext().getBean(CivitaiParameter.class);
                             CivitaiParameter cps = ApplicationContextProvider.getContext().getBean(CivitaiParameter.class);
                             response = cps.parse(tag.getDescription());
                             break;

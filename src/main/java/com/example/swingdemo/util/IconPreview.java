@@ -24,8 +24,36 @@ public class IconPreview {
     }
 
     public ImageIcon getIcon() {
+        return icon;
+    }
+
+    /**
+     * Check if the ImageIcon is set and generates it if necessary.
+     *
+     * @return ImageIcon
+     */
+    public ImageIcon getFilledIcon() {
 
         if (icon == null) {
+            generateIcon();
+        }
+        return icon;
+    }
+
+    /**
+     * Check if the ImageIcon is set and generates it if necessary.
+     *
+     * @return IconPreview
+     */
+    public IconPreview getFilledIconPreview() {
+
+        if (icon == null) {
+            generateIcon();
+        }
+        return this;
+    }
+
+    private void generateIcon() {
 
             int width = Viewer.iconSize;
             int height = Viewer.iconSize;
@@ -64,12 +92,8 @@ public class IconPreview {
                     .getScaledInstance(width, height, Image.SCALE_DEFAULT));
         }
 
-//        System.err.println("icon height: " + icon.getIconHeight() + ", icon width: " + icon.getIconWidth());
-
-        return icon;
-    }
-
     public Path getPath() {
         return this.imagePath;
     }
+
 }
