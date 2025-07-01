@@ -41,26 +41,23 @@ public class FileOpenAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-//        System.err.println("ActionEvent e source: " + e.getSource().toString());
-
         if (viewer == null) {
             System.err.println("No viewer found, giving up!");
             log.log(Level.SEVERE, "Calling FileOpenAction without a viewer class.");
             return;
         }
 
-        // disable all controls
-//        this.setEnabled(false);
+        int returnVal = fileChooser.showOpenDialog(viewer.getViewerPanel());
 
         // Does the SwingWorker belongs her?
-        SwingWorker<List<IconPreview>, IconPreview> worker = new SwingWorker<>() {
+        SwingWorker<Integer, IconPreview> worker = new SwingWorker<>() {
 
             DefaultListModel<IconPreview> model = viewer.getPreviewListModel();
 
             @Override
-            protected List<IconPreview> doInBackground() {
-                int returnVal = fileChooser.showOpenDialog(viewer.getViewerPanel());
+            protected Integer doInBackground() {
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    model.removeAllElements();
                     icons.clear();
                     File dir = fileChooser.getSelectedFile();
                     FileNameExtensionFilter fnf = getFileNameExtensionFilter();
@@ -68,37 +65,20 @@ public class FileOpenAction extends AbstractAction {
                         files
                                 .filter(path -> !Files.isDirectory(path))
                                 .filter(path -> fnf.accept(path.toFile()))
-                                .forEach(path -> publish(new IconPreview(path)));
+                                .forEach(path -> publish(new IconPreview(path).getFilledIconPreview()));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
-                return icons;
+                return Integer.valueOf(1);
             }
 
             @Override
             protected void process(List<IconPreview> chunks) {
-                System.err.println("FileOpenAction SwingWorker.process chunk size: " + chunks.size());
-                for (int i = 0; i < chunks.size(); i++) {
-                    model.addElement(chunks.get(i).getFilledIconPreview());
-                    if (i % 10 == 0) {
-                        System.err.println("FileOpenAction SwingWorker.process revalidate");
-                        System.err.println("FileOpenAction SwingWorker.process model.size(): " + model.getSize());
-                        viewer.getPreviewScroll().revalidate();
-                    }
+                for (IconPreview iconPreview : chunks) {
+                    model.addElement(iconPreview);
                 }
-                viewer.getPreviewScroll().revalidate();
             }
-
-//            @Override
-//            protected void done() {
-//                model.removeAllElements();
-////                System.err.println("FileOpenAction icons has " + icons.size() + " entries");
-//                for (IconPreview icon : icons) {
-//                    model.addElement(icon);
-//                }
-//                FileOpenAction.this.setEnabled(true);
-//            }
         };
 
         worker.execute();

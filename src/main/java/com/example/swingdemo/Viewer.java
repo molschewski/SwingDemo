@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
@@ -84,6 +86,8 @@ public class Viewer {
     }
 
     public JPanel createViewerGUI() throws Exception {
+
+        System.err.println("Viewer createViewerGUI thread: " + Thread.currentThread().getName());
 
         viewerPanel = new JPanel(new BorderLayout());
         JPanel lineEndPanel = new JPanel();
@@ -165,7 +169,7 @@ public class Viewer {
         previewListModel = new DefaultListModel<>();
         previewList = new JList<>(previewListModel);
         previewList.setCellRenderer(new IconCellRenderer2());
-        ListSelectionListener listener = new ListSelectionListener() {
+        ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent lse) {
 
@@ -195,7 +199,25 @@ public class Viewer {
                 }
             }
         };
-        previewList.addListSelectionListener(listener);
+        previewList.addListSelectionListener(listSelectionListener);
+        ListDataListener listDataListener = new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                getPreviewList().revalidate();
+                getPreviewList().repaint();
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
+
+            }
+        };
+        previewListModel.addListDataListener(listDataListener);
 
         previewList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         previewList.setVisibleRowCount(1);
